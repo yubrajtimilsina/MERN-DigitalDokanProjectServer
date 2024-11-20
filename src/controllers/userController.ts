@@ -2,6 +2,7 @@
 import { Request,Response } from "express";
 import User from "../Database/models/userModels";
 import bcrypt from 'bcrypt'
+import generateToken from "../services/generateToken";
 
 
 class UserController{
@@ -59,8 +60,11 @@ class UserController{
                     message : "Invalid password😒"
                 })
             }else{
+
+                const token = generateToken(user.id)
                 res.status(200).json({
-                    message : "logged in sucessfully👌"
+                    message : "logged in sucessfully👌",
+                    token
                 })
             }
         }
