@@ -1,7 +1,7 @@
-import Express  from "express";
+import Express, { Router }  from "express";
 import UserController from "../controllers/userController";
 
-const router = Express.Router()
+const router:Router = Express.Router()
 
 router.route("/register").post(UserController.register)
 router.route("/login").post(UserController.login)
