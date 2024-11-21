@@ -1,9 +1,10 @@
 import { Sequelize } from "sequelize-typescript";
 import { envConfig } from "../config/config";
 import User from "./models/userModels";
+import Product from "./models/productModels";
 
 const sequelize = new Sequelize(envConfig.connectionString as string, {
-    models: [User], // Explicitly add User model
+    models: [__dirname + '/models'], // Explicitly add User model
 });
 
 try {
@@ -18,7 +19,7 @@ try {
     console.log(error);
 }
 
-sequelize.sync({ force: false }).then(() => {
+sequelize.sync({ force: false,alter:false }).then(() => {
     console.log("synced!!");
 });
 

@@ -21,6 +21,18 @@ class UserController{
             });
             return;
         }
+         //Check whether that email already exist or not
+         const [data] =  await User.findAll({
+            where : {
+                email :email
+            }
+        })
+        if(data){
+            res.status(400).json({
+                message : "Please try again later !!!"
+            })
+            return
+        } 
 
         // Insert user data into the users table without hashing the password
         await User.create({
