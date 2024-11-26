@@ -3,46 +3,49 @@ import Product from "../Database/models/productModels";
 import Category from "../Database/models/categoryModel";
 
 
+interface ProductRequest extends Request{
+    file? : {
+        filename : string
+    },
+}
+
 class ProductController{
-    async createProduct(req:Request,res:Response):Promise<void>{
-      
-            const {productName,productDescription,productPrice,productTotalStock,discount,categoryId} = req.body 
-        const filename = req.file ? req.file.filename : "https://weimaracademy.org/wp-content/uploads/2021/08/dummy-user.png"
-        if(!productName || !productDescription || !productPrice || !productTotalStock  || !categoryId){
+    async createProduct(req:ProductRequest,res:Response):Promise<void>{
+        const { productName,productDescription,productPrice,productTotalStock,discount,categoryId} = req.body
+        const filename = req.file ? req.file.filename : "https://thumbs.dreamstime.com/b/vector-illustration-avatar-dummy-logo-collection-image-icon-stock-isolated-object-set-symbol-web-137160339.jpg"
+        if(!productName || !productDescription || !productPrice || !productTotalStock || !categoryId){
             res.status(400).json({
-                message : "Please provide productName,productDescription,productPrice,productTotalStock,discount,categoryId"
+                message : "Please provide productName,productDescription,productPrice,productTotalStock,discount "
             })
             return
         }
-         await Product.create({
+        await Product.create({
             productName,
             productDescription,
             productPrice,
             productTotalStock,
             discount : discount || 0,
-            categoryId:categoryId, 
+            categoryId,
             productImageUrl : filename
         })
         res.status(200).json({
-            message : "Product created successfully"
+            message : "Product created sucessfully"
         })
-  
     }
-    async getAllProducts(req:Request,res:Response) : Promise<void>{
+    async getAllProducts(req:Request, res: Response) : Promise<void>{
         const datas = await Product.findAll({
             include : [
                 {
-                    model : Category, 
-                    attributes : ['id','categoryName']
+                model : Category
                 }
             ]
         })
         res.status(200).json({
-            message : "Products fetched successfully", 
+            message : "Products fetched sucessfully",
             data : datas
         })
     }
-    async getSingleProduct(req:Request,res:Response) : Promise<void>{
+    async getSingleProducts(req:Request, res: Response) : Promise<void>{
         const {id} = req.params
         const datas = await Product.findAll({
             where : {
@@ -50,17 +53,17 @@ class ProductController{
             },
             include : [
                 {
-                    model : Category, 
-                    attributes : ['id','categoryName']
+                model : Category
                 }
             ]
         })
         res.status(200).json({
-            message : "Products fetched successfully", 
+            message : "Products fetched sucessfully",
             data : datas
         })
     }
-    async deleteProduct(req:Request,res:Response) : Promise<void>{
+
+    async deleteProducts(req:Request, res: Response) : Promise<void>{
         const {id} = req.params
         const datas = await Product.findAll({
             where : {
@@ -78,11 +81,12 @@ class ProductController{
                 }
             })
             res.status(200).json({
-                message : "Products deleted successfully", 
+                message : "Products deleted sucessfully",
                 data : datas
             })
         }
+        
     }
-}
+} 
 
 export default new ProductController

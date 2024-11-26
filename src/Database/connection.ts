@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize-typescript";
 import { envConfig } from "../config/config";
 import User from "./models/userModels";
 import Product from "./models/productModels";
+import Category from "./models/categoryModel";
 
 const sequelize = new Sequelize(envConfig.connectionString as string, {
     models: [__dirname + '/models'], // Explicitly add User model
@@ -22,5 +23,12 @@ try {
 sequelize.sync({ force: false,alter:false }).then(() => {
     console.log("synced!!");
 });
+
+
+//relationship 
+
+Product .belongsTo(Category)
+Category.hasOne(Product)
+
 
 export default sequelize;

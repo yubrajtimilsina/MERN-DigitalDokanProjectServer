@@ -5,7 +5,7 @@ import express from 'express'
 import './Database/connection'
 import userRoute from './routes/userRoutes'
 import categoryRoutes from './routes/categoryRoutes'
-import productRoutes from './routes/productRoute'
+import productRoute from './routes/productRoute'
 
 const app = express()
 app.use(express.json())
