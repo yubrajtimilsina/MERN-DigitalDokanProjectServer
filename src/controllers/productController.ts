@@ -3,15 +3,16 @@ import Product from "../Database/models/productModels";
 import Category from "../Database/models/categoryModel";
 
 
-interface ProductRequest extends Request{
-    file? : {
-        filename : string
-    },
-}
+// interface ProductRequest extends Request{
+//     file? : {
+//         filename : string
+//     },
+// }
 
 class ProductController{
-    async createProduct(req:ProductRequest,res:Response):Promise<void>{
+    async createProduct(req:Request,res:Response):Promise<void>{
         const { productName,productDescription,productPrice,productTotalStock,discount,categoryId} = req.body
+        console.log(req.file)
         const filename = req.file ? req.file.filename : "https://thumbs.dreamstime.com/b/vector-illustration-avatar-dummy-logo-collection-image-icon-stock-isolated-object-set-symbol-web-137160339.jpg"
         if(!productName || !productDescription || !productPrice || !productTotalStock || !categoryId){
             res.status(400).json({
@@ -26,7 +27,7 @@ class ProductController{
             productTotalStock,
             discount : discount || 0,
             categoryId,
-            productImageUrl : filename
+            productImgUrl : filename
         })
         res.status(200).json({
             message : "Product created sucessfully"
@@ -36,7 +37,8 @@ class ProductController{
         const datas = await Product.findAll({
             include : [
                 {
-                model : Category
+                model : Category,
+                attributes : ['id','categoryName']
                 }
             ]
         })
@@ -53,7 +55,8 @@ class ProductController{
             },
             include : [
                 {
-                model : Category
+                model : Category,
+                attributes : ['id', 'categoryName']
                 }
             ]
         })
