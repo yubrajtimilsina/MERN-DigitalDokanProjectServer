@@ -33,7 +33,7 @@ sequelize.sync({ force: false,alter:false }).then(() => {
 Product .belongsTo(Category,{foreignKey : 'categoryId'})
 Category.hasOne(Product,{foreignKey : 'categoryId'})
 
-//User * orders
+//User X orders
 User.hasMany(Order,{foreignKey:'userId'})
 Order.belongsTo(User,{foreignKey:'userId'})
 
