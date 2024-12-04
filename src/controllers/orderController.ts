@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
-import Order from "../Database/models/orderModel"
+import Order from "../Database/models/orderModel";
 import OrderDetails from "../Database/models/orderDetail"
-import { PaymentMethod } from "../globals/types";
+import { PaymentMethod, PaymentStatus } from "../globals/types";
 import Payment from "../Database/models/paymentModel"
+import axios from 'axios'
 
 interface IProduct{
     productId : string, 
@@ -34,8 +35,6 @@ class OrderController{
             userId
         })
         // for orderDetails
-        console.log(orderData,"OrderData!!")
-        console.log(products)
       products.forEach(async function(product){
         await OrderDetails.create({
             quantity : product.productQty, 
@@ -43,21 +42,34 @@ class OrderController{
             orderId : orderData.id
         })
       })
-      // for payment 
-      if(paymentMethod == PaymentMethod.COD){
-        await Payment.create({
-            orderId : orderData.id, 
-            paymentMethod : paymentMethod, 
-        })
-      }else if (paymentMethod == PaymentMethod.Khalti){
+      // for payment
+      const paymentData = await Payment.create({
+        orderId : orderData.id, 
+        paymentMethod : paymentMethod, 
+    })
+     if (paymentMethod == PaymentMethod.Khalti){
         // khalti logic
-      }else{
-        // esewa logic
+        
+        const data = {
+          return_url : "http://localhost:5173/", 
+          website_url : "http://localhost:5173/", 
+          amount : totalAmount * 100, 
+          purchase_order_id : orderData.id, 
+          purchase_order_name : "order_" + orderData.id
+        }
+       const response =  await axios.post("https://a.khalti.com/api/v2/epayment/initiate/",data,{
+          headers : {
+            Authorization : "Key b71142e3f4fd4da8acccd01c8975be38"
+          }
+        })
+      }else if(paymentMethod == PaymentMethod.Esewa){
 
+      }else{
+        res.status(200).json({
+          message : "Order created successfully"
+        })
       }
-      res.status(200).json({
-        message : "Order created successfully"
-      })
+ 
     }
 }
 

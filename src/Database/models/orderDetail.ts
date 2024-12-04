@@ -19,7 +19,7 @@ class OrderDetails extends Model{
         type : DataType.INTEGER, 
         allowNull : false 
     })
-    declare quantity : number 
+    declare quantity : number;
 }
 
 export default OrderDetails
