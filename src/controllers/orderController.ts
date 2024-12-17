@@ -59,9 +59,10 @@ class OrderController{
         }
        const response =  await axios.post("https://a.khalti.com/api/v2/epayment/initiate/",data,{
           headers : {
-            Authorization : "Key b71142e3f4fd4da8acccd01c8975be38"
+            Authorization : "Key db7a347b9a2f479e99b0e2d9eb228b17"
           }
         })
+        console.log(response)
       }else if(paymentMethod == PaymentMethod.Esewa){
 
       }else{

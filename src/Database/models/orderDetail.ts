@@ -17,7 +17,7 @@ class OrderDetails extends Model{
 
     @Column({
         type : DataType.INTEGER, 
-        allowNull : false 
+        allowNull : true 
     })
     declare quantity : number;
 }
