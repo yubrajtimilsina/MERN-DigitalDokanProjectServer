@@ -6,6 +6,7 @@ import Category from "./models/categoryModel";
 import Order from "./models/orderModel";
 import Payment from "./models/paymentModel";
 import OrderDetails from "./models/orderDetail";
+import Cart from "./models/cartModel";
 
 const sequelize = new Sequelize(envConfig.connectionString as string, {
     models: [__dirname + '/models'], // Explicitly add User model
@@ -46,5 +47,11 @@ OrderDetails.belongsTo(Order,{foreignKey:'orderId'})
 
 Product.hasMany(OrderDetails,{foreignKey:'productId'})
 OrderDetails.belongsTo(Product,{foreignKey:'productId'})
+
+//Cart -user
+Cart.belongsTo(User)
+User.hasOne(Cart)
+
+
 
 export default sequelize;
