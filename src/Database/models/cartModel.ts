@@ -15,10 +15,10 @@ class Cart extends Model{
     })
     @Column({
         type : DataType.INTEGER,
-        allowNull : true
+        allowNull : false
     })
 
-    declare quality : Number
+    declare quantity : Number
 }
 
 export default Cart

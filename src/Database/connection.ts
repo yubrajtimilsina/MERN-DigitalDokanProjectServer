@@ -49,9 +49,13 @@ Product.hasMany(OrderDetails,{foreignKey:'productId'})
 OrderDetails.belongsTo(Product,{foreignKey:'productId'})
 
 //Cart -user
-Cart.belongsTo(User)
-User.hasOne(Cart)
+Cart.belongsTo(User,{foreignKey:"userId"})
+User.hasOne(Cart,{foreignKey:"userId"})
 
+//cart  -Product
+
+Cart.belongsTo(Product,{foreignKey:"productId"})
+Product.hasMany(Cart, {foreignKey:"productId"})
 
 
 export default sequelize;
