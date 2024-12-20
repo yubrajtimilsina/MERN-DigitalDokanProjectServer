@@ -15,7 +15,7 @@ app.use("/api/auth",userRoute)
 app.use("/api/category",categoryRoutes)
 app.use("/api/product",productRoute)
 app.use("/api/order",OrderRoute)
-app.use("/app/cart", CartRoute)
+app.use("/api/cart", CartRoute)
 
 export default app
 
