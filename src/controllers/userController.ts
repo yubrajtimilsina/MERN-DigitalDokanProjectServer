@@ -35,7 +35,7 @@ class UserController{
         } 
 
         // Insert user data into the users table without hashing the password
-        await User.create({
+        const user = await User.create({
             username,
             email,
             password :bcrypt.hashSync(password,10), // Stored directly without hashing

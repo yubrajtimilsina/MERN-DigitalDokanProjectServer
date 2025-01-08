@@ -8,11 +8,16 @@ import categoryRoutes from './routes/categoryRoutes'
 import productRoute from './routes/productRoute'
 import OrderRoute from './routes/ordreRoute'
 import CartRoute from './routes/cartRoutes'
-
-
+import cors from 'cors'
 
 const app = express()
+app.use(cors({
+    origin : "*"
+}))
+
 app.use(express.json())
+
+
 app.use("/api/auth",userRoute)
 app.use("/api/category",categoryRoutes)
 app.use("/api/product",productRoute)
