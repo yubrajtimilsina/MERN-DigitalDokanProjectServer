@@ -24,5 +24,7 @@ app.use("/api/product",productRoute)
 app.use("/api/order",OrderRoute)
 app.use("/api/cart", CartRoute)
 
+app.use(express.static("./src/uploads"))
+
 export default app
 
