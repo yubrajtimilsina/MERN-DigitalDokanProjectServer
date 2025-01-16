@@ -78,7 +78,7 @@ export default OrderController
 
 /* 
 {  
-    shippingAddress : "Itahari", 
+    shippingAddress : "Pokhara", 
     phoneNumber : 912323, 
     totalAmount : 1232, 
     products : [{
