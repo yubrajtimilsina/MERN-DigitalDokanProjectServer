@@ -19,9 +19,9 @@ interface OrderRequest extends Request{
 class OrderController{
     static async createOrder(req:OrderRequest,res:Response):Promise<void>{
         const userId =  req.user?.id
-        const {phoneNumber,shippingAddress,totalAmount,paymentMethod} = req.body 
+        const {phoneNumber,firstName,lastName,email,city,zipCode, state, addressLine,totalAmount,paymentMethod} = req.body 
         const products:IProduct[] = req.body.products
-        if(!phoneNumber || !shippingAddress || !totalAmount || products.length == 0 ){
+        if(!phoneNumber || !city || !zipCode || !state || !addressLine || !totalAmount || products.length == 0 || !firstName || !lastName || !email ){
             res.status(400).json({
                 message : "Please provide phoneNumber,shippingAddress,totalAmount,products"
             })
@@ -30,9 +30,15 @@ class OrderController{
         // for order 
         const orderData = await Order.create({
             phoneNumber, 
-            shippingAddress, 
+            city,
+            addressLine,
+            zipCode,
+            state,
             totalAmount, 
-            userId
+            userId,
+            firstName,
+            lastName,
+            email
         })
         // for orderDetails
       products.forEach(async function(product){
