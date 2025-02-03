@@ -23,7 +23,7 @@ class OrderController{
         const products:IProduct[] = req.body.products
         if(!phoneNumber || !city || !zipCode || !state || !addressLine || !totalAmount || products.length == 0 || !firstName || !lastName || !email ){
             res.status(400).json({
-                message : "Please provide phoneNumber,shippingAddress,totalAmount,products"
+                message : "Please provide required fields: phoneNumber, city, zipCode, state, addressLine, totalAmount, and products.",
             })
             return
         }
@@ -68,6 +68,17 @@ class OrderController{
             Authorization : "Key db7a347b9a2f479e99b0e2d9eb228b17"
           }
         })
+        const khaltiResponse = response.data 
+      paymentData.pidx = khaltiResponse.pidx
+      paymentData.save()
+      res.status(200).json({
+        message : "Order created successfully", 
+        url : khaltiResponse.payment_url, 
+        pidx : khaltiResponse.pidx,  
+        data
+
+      })
+
         console.log(response)
       }else if(paymentMethod == PaymentMethod.Esewa){
 
@@ -77,6 +88,39 @@ class OrderController{
         })
       }
  
+    }
+
+    static async verifyTransaction(req:OrderRequest,res:Response):Promise<void>{
+      const {pidx} = req.body 
+      if(!pidx){
+        res.status(400).json({
+          message : "Please provide pidx"
+        })
+        return
+      }
+      const response = await axios.post("https://a.khalti.com/api/v2/epayment/lookup/",{
+        pidx : pidx
+      },{
+        headers : {
+          Authorization : "Key db7a347b9a2f479e99b0e2d9eb228b17"
+        }
+      })
+      const data = response.data 
+      if(data.status === "Completed"){
+        await Payment.update({paymentStatus : PaymentStatus.Paid},{
+          where : {
+            pidx : pidx 
+          }
+        })
+        res.status(200).json({
+          message : "Payment verified successfully !!"
+        })
+      }else{
+        res.status(200).json({
+          message : "Payment not verified or cancelled"
+        })
+      }
+
     }
 }
 
