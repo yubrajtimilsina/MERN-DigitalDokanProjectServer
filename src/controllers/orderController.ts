@@ -4,6 +4,10 @@ import OrderDetails from "../Database/models/orderDetail"
 import { PaymentMethod, PaymentStatus } from "../globals/types";
 import Payment from "../Database/models/paymentModel"
 import axios from 'axios'
+import Cart from "../Database/models/cartModel";
+import Product from "../Database/models/productModels";
+import Category from "../Database/models/categoryModel";
+
 
 interface IProduct{
     productId : string, 
@@ -28,6 +32,9 @@ class OrderController{
             return
         }
         // for order 
+
+        let data; 
+
         const orderData = await Order.create({
             phoneNumber, 
             city,
@@ -38,14 +45,21 @@ class OrderController{
             userId,
             firstName,
             lastName,
-            email
+            email,
+          
         })
         // for orderDetails
       products.forEach(async function(product){
-        await OrderDetails.create({
+       data =  await OrderDetails.create({
             quantity : product.productQty, 
             productId : product.productId, 
             orderId : orderData.id
+        })
+        await Cart.destroy({
+          where : {
+            productId : product.productId, 
+            userId : userId
+          }
         })
       })
       // for payment
@@ -122,6 +136,70 @@ class OrderController{
       }
 
     }
+
+    static async fetchMyOrders(req:OrderRequest,res:Response):Promise<void>{
+      const userId = req.user?.id 
+      const orders = await Order.findAll({
+        where : {
+          userId
+        }, 
+        attributes : ["totalAmount","id","orderStatus"], 
+        include : {
+          model : Payment, 
+          attributes : ["paymentMethod", "paymentStatus"]
+        }
+      })
+      if(orders.length > 0){
+        res.status(200).json({
+          message : "Order fetched successfully", 
+          data : orders 
+        })
+      }else{
+        res.status(404).json({
+          message : "No order found", 
+          data : []
+        })
+      }
+    }
+
+    static async fetchMyOrderDetail(req:OrderRequest,res:Response):Promise<void>{
+      const orderId = req.params.id 
+      const userId = req.user?.id 
+      const orders = await OrderDetails.findAll({
+        where : {
+          orderId, 
+
+        }, 
+        include : [{
+          model : Order , 
+          include : [
+            {
+              model : Payment, 
+              attributes : ["paymentMethod","paymentStatus"]
+            }
+          ],
+          attributes : ["orderStatus","AddressLine","City","State","totalAmount","phoneNumber", "firstName", "lastName"]
+        },{
+          model : Product, 
+          include : [{
+            model : Category
+          }], 
+          attributes : ["productImageUrl","productName","productPrice"]
+        }]
+      })
+      if(orders.length > 0){
+        res.status(200).json({
+          message : "Order fetched successfully", 
+          data : orders 
+        })
+      }else{
+        res.status(404).json({
+          message : "No order found", 
+          data : []
+        })
+      }
+    }
+
 }
 
 export default OrderController
