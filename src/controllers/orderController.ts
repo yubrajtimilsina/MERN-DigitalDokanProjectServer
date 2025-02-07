@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Order from "../Database/models/orderModel";
 import OrderDetails from "../Database/models/orderDetail"
-import { PaymentMethod, PaymentStatus } from "../globals/types";
+import { PaymentMethod, PaymentStatus,OrderStatus } from "../globals/types";
 import Payment from "../Database/models/paymentModel"
 import axios from 'axios'
 import Cart from "../Database/models/cartModel";
@@ -20,6 +20,10 @@ interface OrderRequest extends Request{
     }
 }
 
+class OrderWithPaymentId extends Order{
+  declare paymentId : string | null 
+}
+
 class OrderController{
     static async createOrder(req:OrderRequest,res:Response):Promise<void>{
         const userId =  req.user?.id
@@ -34,6 +38,10 @@ class OrderController{
         // for order 
 
         let data; 
+        const paymentData = await Payment.create({
+     
+          paymentMethod : paymentMethod, 
+      })
 
         const orderData = await Order.create({
             phoneNumber, 
@@ -46,7 +54,7 @@ class OrderController{
             firstName,
             lastName,
             email,
-          
+            paymentId : paymentData.id
         })
         // for orderDetails
       products.forEach(async function(product){
@@ -63,10 +71,7 @@ class OrderController{
         })
       })
       // for payment
-      const paymentData = await Payment.create({
-        orderId : orderData.id, 
-        paymentMethod : paymentMethod, 
-    })
+  
      if (paymentMethod == PaymentMethod.Khalti){
         // khalti logic
         
@@ -184,7 +189,7 @@ class OrderController{
           include : [{
             model : Category
           }], 
-          attributes : ["productImageUrl","productName","productPrice"]
+          attributes : ["productImgUrl","productName","productPrice"]
         }]
       })
       if(orders.length > 0){
@@ -198,6 +203,87 @@ class OrderController{
           data : []
         })
       }
+    }
+  
+    static async cancelMyOrder(req:OrderRequest,res:Response):Promise<void>{
+      const userId = req.user?.id 
+      const orderId = req.params.id 
+      const [order] = await Order.findAll({
+        where : {
+          userId : userId, 
+          id : orderId 
+        }
+      })
+      if(!order){
+        res.status(400).json({
+          message : "No order with that Id"
+        })
+        return 
+      }
+      // check order status 
+      if(order.orderStatus === OrderStatus.Ontheway || order.orderStatus === OrderStatus.Preparation){
+        res.status(403).json({
+          message : "You cannot cancelled order, it is on the way or preparation mode"
+        })
+        return
+      }
+      await Order.update({orderStatus : OrderStatus.Cancelled},{
+        where : {
+          id : orderId
+        }
+      })
+      res.status(200).json({
+        message : "Order cancelled successfully"
+      })
+    }
+
+    static async changeOrderStatus(req:OrderRequest,res:Response) : Promise<void>{
+      const orderId = req.params.id 
+      const {orderStatus} = req.body
+      if(!orderId || !orderStatus){
+        res.status(400).json({
+          message : "Please provide orderId and orderStatus"
+        })
+      }
+      await Order.update({orderStatus : orderStatus},{
+        where : {
+          id : orderId
+        }
+      })
+      res.status(200).json({
+        message : "Order status updated successfully"
+      })
+    }
+
+    static async deleteOrder(req:OrderRequest, res:Response) : Promise<void>{
+
+      const orderId = req.params.id 
+      const order : OrderWithPaymentId= await Order.findByPk(orderId) as OrderWithPaymentId
+      const paymentId = order?.paymentId
+      if(!order){
+        res.status(404).json({
+          message : "You dont have that orderId order"
+        })
+        return
+      }
+      await OrderDetails.destroy({
+        where : {
+          orderId : orderId
+        }
+      })
+      await Payment.destroy({
+        where : {
+          id : paymentId
+        }
+      })
+      await Order.destroy({
+        where : {
+          id : orderId
+        }
+      })
+      res.status(200).json({
+        message : "Order delete successfully"
+      })
     }
 
 }
