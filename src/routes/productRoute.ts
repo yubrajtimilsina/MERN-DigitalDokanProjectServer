@@ -10,7 +10,7 @@ const upload = multer({storage : storage})
 const router:Router = express.Router()
 
 router.route("/")
-.post(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Admin), upload.single("productImage"), errorHandler(productController.createProduct))
+.post(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Admin), upload.single("productImgUrl"), errorHandler(productController.createProduct))
 .get(productController.getAllProducts)
 
 router.route("/:id")
