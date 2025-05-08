@@ -1,4 +1,4 @@
-import {Table,Column,Model,DataType, AllowNull} from 'sequelize-typescript'
+import {Table,Column,Model,DataType, AllowNull, Default} from 'sequelize-typescript'
 
 
 @Table({
@@ -49,6 +49,18 @@ class Product extends Model{
         type : DataType.STRING
     })
     declare productImgUrl:string
+
+    @Column({
+        type: DataType.FLOAT,
+        defaultValue: 0
+    })
+    declare averageRating: number
+
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 0
+    })
+    declare reviewCount: number
 }
 
 export default Product

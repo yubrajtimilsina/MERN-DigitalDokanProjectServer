@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import Product from "../Database/models/productModels";
 import Category from "../Database/models/categoryModel";
+import Review from "../Database/models/reviewModel";
+import User from "../Database/models/userModels";
 
 
 // interface ProductRequest extends Request{
@@ -41,6 +43,11 @@ class ProductController{
                 model : Category,
                 attributes : ['id','categoryName']
                 }
+            ],
+            attributes: [
+                'id', 'productName', 'productDescription', 'productPrice', 
+                'productTotalStock', 'discount', 'productImgUrl', 
+                'averageRating', 'reviewCount', 'categoryId', 'createdAt', 'updatedAt'
             ]
         })
         res.status(200).json({
@@ -50,22 +57,45 @@ class ProductController{
     }
     async getSingleProducts(req:Request, res: Response) : Promise<void>{
         const {id} = req.params
-        const [datas] = await Product.findAll({
-            where : {
-                id : id
-            },
+        const product = await Product.findByPk(id, {
             include : [
                 {
-                model : Category,
-                attributes : ['id', 'categoryName']
+                    model : Category,
+                    attributes : ['id', 'categoryName']
+                },
+                {
+                    model: Review,
+                    where: { isVisible: true },
+                    required: false,
+                    include: [
+                        {
+                            model: User,
+                            attributes: ['username']
+                        }
+                    ],
+                    limit: 5,
+                    order: [['createdAt', 'DESC']]
                 }
+            ],
+            attributes: [
+                'id', 'productName', 'productDescription', 'productPrice', 
+                'productTotalStock', 'discount', 'productImgUrl', 
+                'averageRating', 'reviewCount', 'categoryId', 'createdAt', 'updatedAt'
             ]
-        })
+        });
+        
+        if (!product) {
+            res.status(404).json({
+                message: "Product not found"
+            });
+            return;
+        }
+        
         res.status(200).json({
-            message : "Products fetched sucessfully",
-            data : datas
-        })
-    }
+            message: "Product fetched successfully",
+            data: product
+        });
+    } 
 
     async deleteProducts(req:Request, res: Response) : Promise<void>{
         const {id} = req.params

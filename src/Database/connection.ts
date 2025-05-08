@@ -7,6 +7,7 @@ import Order from "./models/orderModel";
 import Payment from "./models/paymentModel";
 import OrderDetails from "./models/orderDetail";
 import Cart from "./models/cartModel";
+import Review from "./models/reviewModel";
 
 const sequelize = new Sequelize(envConfig.connectionString as string, {
     models: [__dirname + '/models'], // Explicitly add User model
@@ -57,5 +58,11 @@ User.hasOne(Cart,{foreignKey:"userId"})
 Cart.belongsTo(Product,{foreignKey:"productId"})
 Product.hasMany(Cart, {foreignKey:"productId"})
 
+// Review relationships
+Review.belongsTo(User, { foreignKey: "userId" })
+User.hasMany(Review, { foreignKey: "userId" })
+
+Review.belongsTo(Product, { foreignKey: "productId" })
+Product.hasMany(Review, { foreignKey: "productId" })
 
 export default sequelize;
